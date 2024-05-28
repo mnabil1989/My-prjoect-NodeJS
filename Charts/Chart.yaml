@@ -1,0 +1,43 @@
+# Replace with your application name
+name: my-nodejs-app
+
+# Replace with your application version
+version: 1.0.0
+
+# Replace with a description of your application
+description: A sample Node.js application
+
+# Define dependencies (if any)
+dependencies:
+  # ...
+
+# Application maintainer information
+maintainers:
+  - name: Mohamed Nabil
+    email: moenabil@gmail.com
+
+# Define the chart sources
+sources:
+  # ...
+
+# Define chart keywords
+keywords:
+  - nodejs
+  - webapp
+
+# Define application type
+type: application
+
+# Define application chart location
+appVersion: ./
+
+# Define chart schema version
+apiVersion: v2
+
+# List of chart values
+values:
+  # Define configuration values for your application
+  image:  my-nodejs-app
+  replicaCount: 2  # Number of application replicas
+  port: 8080  # Application port
+  # ... (other application configuration values)

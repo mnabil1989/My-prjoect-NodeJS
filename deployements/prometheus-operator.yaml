@@ -1,0 +1,76 @@
+apiVersion: appsv1
+kind: Deployment
+metadata:
+  name: prometheus-operator
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-operator
+  template:
+    metadata:
+      labels:
+        app: prometheus-operator
+    spec:
+      serviceAccountName: prometheus-operator
+      containers:
+      - name: operator
+        image: prom/prometheus-operator:v2.33.0
+        args:
+        - '--configmap-name=prometheus-operator-config'
+        - '--namespaces=monitoring'
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-operator-config
+---
+apiVersion: v1
+kind: ServiceAccount
+name: prometheus-operator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-operator
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - pods
+  - services
+  - service_accounts
+  - endpoints
+  - secrets
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - pods
+  verbs: ["proxy"]
+- apiGroups: ["extensions/v1beta1", "apps/v1"]
+  resources:
+  - deployments
+  - replicasets
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
+- apiGroups: ["monitoring.k8s.io"]
+  resources:
+  - prometheuses
+  - prometheurules
+  - alertmanagers
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-operator
+subjects:
+- kind: ServiceAccount
+  name: prometheus-operator
+  namespace: monitoring
